@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("<PLACE YOUR ADDRESS HERE>");
+declare_id!("74Ars8khtZHAmLEWxjFL5u71UU21h1UzENST1o5xxNf");
 
 #[program]
 pub mod todo_list_app {
@@ -10,47 +10,40 @@ pub mod todo_list_app {
         let task = &mut ctx.accounts.task;
         let author = &ctx.accounts.author; // The `author` account
         let clock = Clock::get().unwrap(); // Getting the current timestamp
-        
+
         if text.chars().count() > 400 {
             return Err(ErrorCode::TextTooLong.into());
         }
-        
+
         task.author = *author.key;
         task.is_done = false;
         task.created_at = clock.unix_timestamp;
         task.updated_at = clock.unix_timestamp;
         task.text = text;
         Ok(())
-
     }
 
     pub fn updating_task(ctx: Context<UpdatingTask>, is_done: bool) -> Result<()> {
         let task = &mut ctx.accounts.task;
         let author = &ctx.accounts.author; // The `author` account
         let clock = Clock::get().unwrap(); // Getting the current timestamp
-        
+
         task.author = *author.key;
         task.is_done = is_done;
         task.updated_at = clock.unix_timestamp;
         Ok(())
-       
     }
 
     pub fn deleting_task(ctx: Context<DeletingTask>) -> Result<()> {
         let task = &mut ctx.accounts.task;
         let author = &ctx.accounts.author; // The `author` account
         let clock = Clock::get().unwrap(); // Getting the current timestamp
-        
+
         task.author = *author.key;
         task.is_done = true;
         task.updated_at = clock.unix_timestamp;
         Ok(())
-       
     }
-
-
-
-
 }
 
 #[derive(Accounts)]
@@ -61,7 +54,6 @@ pub struct AddingTask<'info> {
     pub author: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
-
 
 #[derive(Accounts)]
 pub struct UpdatingTask<'info> {
@@ -77,7 +69,6 @@ pub struct DeletingTask<'info> {
     pub author: Signer<'info>,
 }
 
-
 #[account]
 pub struct Task {
     pub author: Pubkey,  // The account that owns the task
@@ -87,6 +78,7 @@ pub struct Task {
     pub updated_at: i64, // The timestamp when the task was last updated
 }
 
+// sizes of the fields in the Task structure, used to calculate the size of the account
 const DISCRIMINATOR: usize = 8;
 const PUBLIC_KEY_LENGTH: usize = 32;
 const BOOL_LENGTH: usize = 1;
@@ -101,7 +93,6 @@ impl Task {
         TIMESTAMP_LENGTH + // created_at
         TIMESTAMP_LENGTH; // updated_at
 }
-
 
 #[error_code]
 pub enum ErrorCode {
